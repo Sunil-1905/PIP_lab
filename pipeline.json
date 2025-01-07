@@ -1,0 +1,87 @@
+{
+  "pipeline": {
+    "name": "MyTerraformPipeline",
+    "roleArn": "arn:aws:iam::010438488181:role/AWSCodePipelineServiceRole",
+    "artifactStore": {
+      "type": "S3",
+      "location": "testlab-pip-codepipeline-artifacts"
+    },
+    "stages": [
+      {
+        "name": "Source",
+        "actions": [
+          {
+            "name": "Source",
+            "actionTypeId": {
+              "category": "Source",
+              "owner": "ThirdParty",
+              "provider": "GitHub",
+              "version": "1"
+            },
+            "outputArtifacts": [
+              {
+                "name": "SourceArtifact"
+              }
+            ],
+            "configuration": {
+              "Owner": "Sunil-1905",
+              "Repo": "PIP_lab",
+              "Branch": "master",
+              "OAuthToken": "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"
+            }
+          }
+        ]
+      },
+      {
+        "name": "Build",
+        "actions": [
+          {
+            "name": "Build",
+            "actionTypeId": {
+              "category": "Build",
+              "owner": "AWS",
+              "provider": "CodeBuild",
+              "version": "1"
+            },
+            "inputArtifacts": [
+              {
+                "name": "SourceArtifact"
+              }
+            ],
+            "outputArtifacts": [
+              {
+                "name": "BuildArtifact"
+              }
+            ],
+            "configuration": {
+              "ProjectName": "MyTerraformBuild"
+            }
+          }
+        ]
+      },
+      {
+        "name": "Deploy",
+        "actions": [
+          {
+            "name": "Deploy",
+            "actionTypeId": {
+              "category": "Deploy",
+              "owner": "AWS",
+              "provider": "CodeDeploy",
+              "version": "1"
+            },
+            "inputArtifacts": [
+              {
+                "name": "BuildArtifact"
+              }
+            ],
+            "configuration": {
+              "ApplicationName": "MyTerraformApp",
+              "DeploymentGroupName": "MyTerraformDeploymentGroup"
+            }
+          }
+        ]
+      }
+    ]
+  }
+}
