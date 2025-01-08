@@ -66,19 +66,19 @@ resource "aws_route_table_association" "public_2" {
 
 # Load Balancer and Target Group
 resource "aws_lb" "web" {
-  name               = "web-alb-new"
+  name               = "web-alb"
   internal           = false
   load_balancer_type = "application"
   security_groups    = [aws_security_group.lb_sg.id]
   subnets            = [aws_subnet.public_1.id, aws_subnet.public_2.id]
 
   tags = {
-    Name = "web-alb-new"
+    Name = "web-alb"
   }
 }
 
 resource "aws_lb_target_group" "web" {
-  name     = "web-target-group-new"
+  name     = "web-target-group"
   port     = 80
   protocol = "HTTP"
   vpc_id   = aws_vpc.main.id
@@ -93,7 +93,7 @@ resource "aws_lb_target_group" "web" {
   }
 
   tags = {
-    Name = "web-target-group-new"
+    Name = "web-target-group"
   }
 }
 
@@ -110,7 +110,7 @@ resource "aws_lb_listener" "web" {
 
 # Launch Template with Nginx Installation
 resource "aws_launch_template" "web" {
-  name          = "web-launch-template-new"
+  name          = "web-launch-template"
   image_id      = var.ami_id
   instance_type = var.instance_type
   key_name      = var.key_name
