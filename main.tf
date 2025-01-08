@@ -1,8 +1,8 @@
 #providers
 provider "aws" {
   region     = "ap-southeast-2"
-  access_key = var.AWS_ACCESS_KEY_ID
-  secret_key = var.AWS_SECRET_ACCESS_KEY
+  access_key = "AKIAQE3ROWB25A656SY3" #var.AWS_ACCESS_KEY_ID
+  secret_key = "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" #var.AWS_SECRET_ACCESS_KEY
 }
 # VPC and Networking
 resource "aws_vpc" "main" {
