@@ -1,4 +1,4 @@
-#providers
+#providers details
 provider "aws" {
   region     = "ap-southeast-2"
   access_key = "AKIAQE3ROWB25A656SY3" #var.AWS_ACCESS_KEY_ID
