@@ -127,7 +127,7 @@ resource "aws_launch_template" "web" {
   }
 }
 
-# Auto Scaling Group and Attachment
+/*# Auto Scaling Group and Attachment
 resource "aws_autoscaling_group" "web" {
   desired_capacity     = 2
   max_size             = 3
@@ -148,6 +148,21 @@ resource "aws_autoscaling_group" "web" {
 resource "aws_autoscaling_attachment" "asg_alb" {
   autoscaling_group_name = aws_autoscaling_group.web.name
   lb_target_group_arn    = aws_lb_target_group.web.arn
+}*/
+resource "aws_instance" "web" {
+  #ami           = "ami-0c55b159cbfafe1f0"  # Replace with your desired AMI ID
+  #instance_type = "t2.micro"  # Specify the instance type
+
+  launch_template {
+    id      = aws_launch_template.web.id
+    version = "$Latest"
+  }
+
+  tag {
+    key                 = "Name"
+    value               = "WebServerASG"
+    propagate_at_launch = true
+  }
 }
 
 # Security Groups
