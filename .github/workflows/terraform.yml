@@ -3,7 +3,7 @@ ame: Terraform
 on:
   push:
     branches:
-      - main
+      - master
 
 jobs:
   terraform:
