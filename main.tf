@@ -158,7 +158,7 @@ resource "aws_instance" "web" {
     version = "$Latest"
   }
 
-  tag {
+  tags = {
     key                 = "Name"
     value               = "WebServerASG"
     propagate_at_launch = true
