@@ -1,3 +1,12 @@
+#Banckend configuration to store the tfstate file 
+
+terraform {
+  backend "s3" {
+    bucket = "your-bucket-name"
+    key    = "path/to/terraform.tfstate"
+    region = "us-west-2"
+  }
+}
 #providers details
 provider "aws" {
   region     = "ap-southeast-2"
