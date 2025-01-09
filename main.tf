@@ -1,8 +1,8 @@
 #providers details
 provider "aws" {
   region     = "ap-southeast-2"
-  access_key = "AKIAQYEI5FKMMUPTE6XU" #var.AWS_ACCESS_KEY_ID
-  secret_key = "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" #var.AWS_SECRET_ACCESS_KEY
+  access_key = "AKIAQYEI5FKMDQKDDVW5" #var.AWS_ACCESS_KEY_ID. I have use root user sunil_1905@outlook.com
+  secret_key = "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" #var.AWS_SECRET_ACCESS_KEY
 }
 # VPC and Networking
 resource "aws_vpc" "main" {
@@ -127,7 +127,7 @@ resource "aws_launch_template" "web" {
   }
 }
 
-/*# Auto Scaling Group and Attachment
+# Auto Scaling Group and Attachment
 resource "aws_autoscaling_group" "web" {
   desired_capacity     = 2
   max_size             = 3
@@ -148,21 +148,6 @@ resource "aws_autoscaling_group" "web" {
 resource "aws_autoscaling_attachment" "asg_alb" {
   autoscaling_group_name = aws_autoscaling_group.web.name
   lb_target_group_arn    = aws_lb_target_group.web.arn
-}*/
-resource "aws_instance" "web" {
-  #ami           = "ami-0c55b159cbfafe1f0"  # Replace with your desired AMI ID
-  #instance_type = "t2.micro"  # Specify the instance type
-
-  launch_template {
-    id      = aws_launch_template.web.id
-    version = "$Latest"
-  }
-
-  tags = {
-    key                 = "Name"
-    value               = "WebServerASG"
-    propagate_at_launch = true
-  }
 }
 
 # Security Groups
