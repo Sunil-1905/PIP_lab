@@ -16,11 +16,11 @@ jobs:
     - name: Set up Terraform
       uses: hashicorp/setup-terraform@v1
 
-    - name: Download Terraform state file
-      uses: actions/download-artifact@v4
-      with:
-        name: terraform-state
-        path: ./
+    #- name: Download Terraform state file
+    #  uses: actions/download-artifact@v4
+    #  with:
+     #   name: terraform-state
+     #   path: ./
 
     - name: Terraform Init
       run: terraform init
