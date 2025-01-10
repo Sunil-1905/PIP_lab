@@ -15,23 +15,22 @@ jobs:
 
     - name: Set up Terraform
       uses: hashicorp/setup-terraform@v1
-  
-    #- name: Check if artifact exists
-    #  id: check_artifact
-    #  run: |
-     #   if curl --head --silent --fail https://api.github.com/repos/${{ github.repository }}/actions/artifacts | grep -q "terraform-state"; then
-      #    echo "artifact_exists=true" >> $GITHUB_ENV
-      #  else
-       #   echo "artifact_exists=false" >> $GITHUB_ENV
-       # fi
 
-    #- name: Download Terraform state file
-    #  if: env.artifact_exists == 'true'
-     # uses: actions/download-artifact@v4
-     # with:
-      #  name: terraform-state
-     #   path: ./
+    - name: Check if artifact exists
+      id: check_artifact
+      run: |
+        if curl --head --silent --fail https://api.github.com/repos/${{ github.repository }}/actions/artifacts | grep -q "terraform-state"; then
+          echo "artifact_exists=true" >> $GITHUB_ENV
+        else
+          echo "artifact_exists=false" >> $GITHUB_ENV
+        fi
 
+    - name: Download Terraform state file
+      if: env.artifact_exists == 'true'
+      uses: actions/download-artifact@v4
+      with:
+        name: terraform-state
+        path: ./
 
     - name: Terraform Init
       run: terraform init
@@ -47,7 +46,6 @@ jobs:
 
     - name: Terraform Apply
       run: terraform apply -auto-approve
-      #run: terraform apply -auto-approve
       env:
         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -57,3 +55,4 @@ jobs:
       with:
         name: terraform-state
         path: ./terraform.tfstate
+        retention-days: 90  # Optional: Specify retention period
