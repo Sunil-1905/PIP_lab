@@ -2,16 +2,15 @@
 
 terraform {
   backend "s3" {
-    bucket = "your-bucket-name"
-    key    = "path/to/terraform.tfstate"
-    region = "us-west-2"
+    bucket = "web-s3-tfstate-bucket"
+    key    = "tfstate/terraform.tfstate"
+    region = "ap-southeast-2"
   }
 }
 #providers details
 provider "aws" {
   region     = "ap-southeast-2"
-  access_key = "AKIAQYEI5FKMDQKDDVW5" #var.AWS_ACCESS_KEY_ID. I have use root user sunil_1905@outlook.com
-  secret_key = "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" #var.AWS_SECRET_ACCESS_KEY
+  
 }
 # VPC and Networking
 resource "aws_vpc" "main" {
