@@ -132,7 +132,7 @@ resource "aws_launch_template" "web" {
   }
 
   tags = {
-    Name = "WebServer"
+    Name = "Web-CI-CD"
   }
 }
 
