@@ -86,6 +86,8 @@ jobs:
       uses: webfactory/ssh-agent@v0.5.3
       with:
        ssh-private-key: ${{ secrets.EC2_SSH_PRIVATE_KEY }}
+    - name: Run SSH command
+     run: ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa ubuntu@ec2-54-252-156-19.ap-southeast-2.compute.amazonaws.com 'echo "Hello, World!" > hello.txt'
 
 
     - name: SSH into EC2 and deploy
