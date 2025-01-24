@@ -1,3 +1,15 @@
+#Banckend configuration to store the tfstate file 
+
+terraform {
+  backend "s3" {
+    bucket = "web-s3-tfstate-bucket"
+    key    = "myproject/dev/terraform.tfstate"
+    encrypt        = true
+    region = "ap-southeast-2"
+  }
+}
+
+# Providers details
 provider "aws" {
   region = "ap-southeast-2"
 }
