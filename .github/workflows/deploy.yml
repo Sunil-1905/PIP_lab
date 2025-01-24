@@ -81,21 +81,24 @@ jobs:
        # INSTANCE_ID=$(terraform output -raw instance_id)
         #PUBLIC_IP=$(aws ec2 describe-instances --instance-ids $INSTANCE_ID --query 'Reservations[0].Instances[0].PublicIpAddress' --output text)
         #echo "PUBLIC_IP=$PUBLIC_IP" >> $GITHUB_ENV
-  
+
     - name: Setup SSH
-      uses: webfactory/ssh-agent@v0.5.3
-      with:
-       ssh-private-key: ${{ secrets.EC2_SSH_PRIVATE_KEY }}
+      run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.EC2_SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H ec2-54-252-156-19.ap-southeast-2.compute.amazonaws.com >> ~/.ssh/known_hosts
+
     - name: Run SSH command
-      run: ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa ubuntu@ec2-54-252-156-19.ap-southeast-2.compute.amazonaws.com 'echo "Hello, World!" > hello.txt'
-      
+      run: ssh -i ~/.ssh/id_rsa ubuntu@ec2-54-252-156-19.ap-southeast-2.compute.amazonaws.com 'echo "Hello, World!" > hello.txt'
+  
     - name: SSH into EC2 and deploy
       uses: appleboy/ssh-action@v0.1.5
-      with:
-        host: ${{ secrets.EC2_HOST }}
-        username: ubuntu
-        key: ${{ secrets.EC2_SSH_PRIVATE_KEY  }}
-        script: |
+      run: ssh -i ~/.ssh/id_rsa ubuntu@ec2-54-252-156-19.ap-southeast-2.compute.amazonaws.com 
+     
+     
+     
+   script: |
           sudo docker pull python:3.8-slim
           sudo docker stop my-python-container || true
           sudo docker rm my-python-container || true
