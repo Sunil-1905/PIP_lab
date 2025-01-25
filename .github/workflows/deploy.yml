@@ -1,12 +1,12 @@
-name: Deploy EC2 and Install Nginx
+name: Deploy to EC2
 
 on:
   push:
     branches:
-      - master
+      - master  # Ensure this matches your branch name
 
 jobs:
-  deploy:
+  terraform:
     runs-on: ubuntu-latest
 
     steps:
@@ -15,20 +15,54 @@ jobs:
 
     - name: Set up Terraform
       uses: hashicorp/setup-terraform@v1
+
+    - name: Check if artifact exists
+      id: check_artifact
+      run: |
+        if curl --head --silent --fail https://api.github.com/repos/${{ github.repository }}/actions/artifacts | grep -q "terraform-state"; then
+          echo "artifact_exists=true" >> $GITHUB_ENV
+        else
+          echo "artifact_exists=false" >> $GITHUB_ENV
+        fi
+
+    - name: Download Terraform state file
+      if: env.artifact_exists == 'true'
+      uses: actions/download-artifact@v4
       with:
-        terraform_version: 1.0.0
+        name: terraform-state
+        path: ./
 
     - name: Terraform Init
       run: terraform init
+      env:
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+    - name: Terraform Plan
+      run: terraform plan -input=false
+      env:
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
     - name: Terraform Apply
-      run: terraform apply -auto-approve
+      run: terraform destroy -auto-approve
+      env:
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+    - name: Upload Terraform state file
+      uses: actions/upload-artifact@v4
+      with:
+        name: terraform-state
+        path: ./terraform.tfstate
+        retention-days: 90  # Optional: Specify retention period
 
     - name: Install Nginx
       run: |
-        ssh -o StrictHostKeyChecking=no -i ${{ secrets.EC2_SSH_PRIVATE_KEY }} ec2-user@${{ steps.terraform.outputs.instance_ip }} << EOF
+        instance_ip=$(terraform output -raw instance_public_ip)
+        ssh -o StrictHostKeyChecking=no -i ${{ secrets.EC2_SSH_KEY }} ec2-user@$instance_ip << EOF
         sudo apt update -y
-        sudo apt install nginx1 -y
+        sudo apt install nginx -y
         sudo systemctl start nginx
         sudo systemctl enable nginx
         EOF

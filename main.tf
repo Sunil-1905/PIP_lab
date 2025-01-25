@@ -27,7 +27,7 @@ resource "aws_instance" "node_app" {
     key_name = "Web1-Key_pair" # Replace with your key pair name
 }
 
-resource "aws_security_group" "node_app_sg" {
+/*resource "aws_security_group" "node_app_sg" {
   name        = "node_app_sg"
   description = "Allow SSH and HTTP traffic"
 
@@ -51,8 +51,8 @@ resource "aws_security_group" "node_app_sg" {
     protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
   }
-}
+}*/
 
-output "instance_id" {
-  value = aws_instance.node_app.id
+output "instance_public_ip" {
+  value = aws_instance.node_app.public_ip
 }
