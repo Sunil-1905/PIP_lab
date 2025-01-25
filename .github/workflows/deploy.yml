@@ -53,7 +53,7 @@ jobs:
     - name: Install Nginx
       run: |
         instance_ip=$(terraform output -raw instance_public_ip)
-        ssh -o StrictHostKeyChecking=no -i ${{ secrets.EC2_SSH_KEY }} ec2-user@$instance_ip << EOF
+        ssh -o StrictHostKeyChecking=no -i ${{ secrets.EC2_SSH_KEY }} ubuntu@$instance_ip << EOF
         sudo apt update -y
         sudo apt install nginx -y
         sudo systemctl start nginx
