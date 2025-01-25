@@ -1,9 +1,9 @@
-name: Deploy to EC2
+name: Terraform
 
 on:
   push:
     branches:
-      - master  # Ensure this matches your branch name
+      - master
 
 jobs:
   terraform:
@@ -45,26 +45,15 @@ jobs:
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
     - name: Terraform Apply
+      #run: terraform apply -auto-approve
       run: terraform apply -auto-approve
       env:
         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
-    - name: Install Nginx
-      run: |
-        instance_ip=$(terraform output -raw instance_public_ip)
-        ssh -o StrictHostKeyChecking=no -i ${{ secrets.EC2_SSH_KEY }} ubuntu@$instance_ip << EOF
-        #!/bin/bash
-        sudo apt update -y
-        sudo apt install nginx -y
-        sudo systemctl start nginx
-        sudo systemctl enable nginx
-        EOF
-
-    
     - name: Upload Terraform state file
       uses: actions/upload-artifact@v4
       with:
         name: terraform-state
         path: ./terraform.tfstate
-        retention-days: 90  # Optional: Specify retention period    
+        retention-days: 90  # Optional: Specify retention period

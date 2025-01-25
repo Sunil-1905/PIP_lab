@@ -8,35 +8,162 @@ terraform {
     region = "ap-southeast-2"
   }
 }
-
-# Providers details
+#providers details
 provider "aws" {
-  region = "ap-southeast-2"
+  region     = "ap-southeast-2"
+  
 }
+# VPC and Networking
+resource "aws_vpc" "main" {
+  cidr_block = var.vpc_cidr
 
-resource "aws_instance" "node_app" {
-  ami           = "ami-003f5a76758516d1e" # Ubuntu Server 20.04 LTS
-  instance_type = "t2.micro"
-  subnet_id     = "subnet-06890c2f98c212144"
- 
   tags = {
-    Name = "NodeAppInstance"
+    Name = "main-vpc"
   }
-  #user_data = "IyEvYmluL2Jhc2gKc3VkbyBhcHQgdXBkYXRlIC15CnN1ZG8gYXB0IGluc3RhbGwgbmdpbnggLXkKc3VkbyBzeXN0ZW1jdGwgc3RhcnQgbmdpbngKc3VkbyBzeXN0ZW1jdGwgZW5hYmxlIG5naW54"
-
-    key_name = "test" # Replace with your key pair name
 }
 
-/*resource "aws_security_group" "node_app_sg" {
-  name        = "node_app_sg"
-  description = "Allow SSH and HTTP traffic"
+resource "aws_subnet" "public_1" {
+  vpc_id            = aws_vpc.main.id
+  cidr_block        = var.public_subnet_1_cidr
+  availability_zone = var.availability_zone_1
 
-  ingress {
-    from_port   = 22
-    to_port     = 22
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
+  tags = {
+    Name = "public-subnet-1"
   }
+}
+
+resource "aws_subnet" "public_2" {
+  vpc_id            = aws_vpc.main.id
+  cidr_block        = var.public_subnet_2_cidr
+  availability_zone = var.availability_zone_2
+
+  tags = {
+    Name = "public-subnet-2"
+  }
+}
+
+resource "aws_internet_gateway" "main" {
+  vpc_id = aws_vpc.main.id
+
+  tags = {
+    Name = "main-igw"
+  }
+}
+
+resource "aws_route_table" "public" {
+  vpc_id = aws_vpc.main.id
+
+  route {
+    cidr_block = "0.0.0.0/0"
+    gateway_id = aws_internet_gateway.main.id
+  }
+
+  tags = {
+    Name = "public-route-table"
+  }
+}
+
+resource "aws_route_table_association" "public_1" {
+  subnet_id      = aws_subnet.public_1.id
+  route_table_id = aws_route_table.public.id
+}
+
+resource "aws_route_table_association" "public_2" {
+  subnet_id      = aws_subnet.public_2.id
+  route_table_id = aws_route_table.public.id
+}
+
+# Load Balancer and Target Group
+resource "aws_lb" "web" {
+  name               = "web-alb"
+  internal           = false
+  load_balancer_type = "application"
+  security_groups    = [aws_security_group.lb_sg.id]
+  subnets            = [aws_subnet.public_1.id, aws_subnet.public_2.id]
+
+  tags = {
+    Name = "web-alb"
+  }
+}
+
+resource "aws_lb_target_group" "web" {
+  name     = "web-target-group"
+  port     = 80
+  protocol = "HTTP"
+  vpc_id   = aws_vpc.main.id
+
+  health_check {
+    path                = "/"
+    interval            = 30
+    timeout             = 5
+    healthy_threshold   = 3
+    unhealthy_threshold = 3
+    matcher             = "200-299"
+  }
+
+  tags = {
+    Name = "web-target-group"
+  }
+}
+
+resource "aws_lb_listener" "web" {
+  load_balancer_arn = aws_lb.web.arn
+  port              = "80"
+  protocol          = "HTTP"
+
+  default_action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.web.arn
+  }
+}
+
+# Launch Template with Nginx Installation
+resource "aws_launch_template" "web" {
+  name          = "web-launch-template"
+  image_id      = var.ami_id
+  instance_type = var.instance_type
+  key_name      = var.key_name
+
+ user_data = "IyEvYmluL2Jhc2gKc3VkbyBhcHQgdXBkYXRlCnN1ZG8gYXB0IGluc3RhbGwgLXkgYXB0LXRyYW5zcG9ydC1odHRwcyBjYS1jZXJ0aWZpY2F0ZXMgY3VybCBzb2Z0d2FyZS1wcm9wZXJ0aWVzLWNvbW1vbgpjdXJsIC1mc1NMIGh0dHBzOi8vZG93bmxvYWQuZG9ja2VyLmNvbS9saW51eC91YnVudHUvZ3BnIHwgc3VkbyBhcHQt
+a2V5IGFkZApzdWRvIGFkZC1hcHQtcmVwb3NpdG9yeSAteSAiZGViIFthcmNoPWFtZDg2XSBodHRwczovL2Rvd25sb2FkLmRvY2tlci5jb20vbGludXgvdWJ1bnR1ICQobHNiX3JlbGVhc2UgLWNzKSBzdGFibGUiCnN1ZG8gYXB0IHVwZGF0ZQpzdWRvIGFwdCBpbnN0YWxsIC15IGRvY2tlci1jZQpzdWRvIGRvY2tlciBsb2dpbiAtdSBzdW5pbDE5MDVAZ21haWwuY29tIC1wIFNrbWlzaHJhQDEKc3VkbyBkb2NrZXIgcHVsbCBweXRob246My44LXNsaW0Kc3VkbyBkb2NrZXIgcnVuIC1kIC0tbmFtZSBwaXAtcHl0aG9uIC1wIDgwOjgwIHB5dGhv
+bjozLjgtc2xpbSBzaCAtYyAicHl0aG9uIC1tIGh0dHAuc2VydmVyIDgwIgo="
+
+  network_interfaces {
+    associate_public_ip_address = true
+    security_groups             = [aws_security_group.web_sg.id]
+  }
+
+  tags = {
+    Name = "Web-CI-CD"
+  }
+}
+
+# Auto Scaling Group and Attachment
+resource "aws_autoscaling_group" "web" {
+  desired_capacity     = 2
+  max_size             = 3
+  min_size             = 1
+  vpc_zone_identifier  = [aws_subnet.public_1.id, aws_subnet.public_2.id]
+  launch_template {
+    id      = aws_launch_template.web.id
+    version = "$Latest"
+  }
+
+  tag {
+    key                 = "Name"
+    value               = "WebServerASG"
+    propagate_at_launch = true
+  }
+}
+
+resource "aws_autoscaling_attachment" "asg_alb" {
+  autoscaling_group_name = aws_autoscaling_group.web.name
+  lb_target_group_arn    = aws_lb_target_group.web.arn
+}
+
+# Security Groups
+resource "aws_security_group" "lb_sg" {
+  vpc_id = aws_vpc.main.id
 
   ingress {
     from_port   = 80
@@ -51,8 +178,43 @@ resource "aws_instance" "node_app" {
     protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
   }
-}*/
 
-output "instance_public_ip" {
-  value = aws_instance.node_app.public_ip
+  tags = {
+    Name = "lb-sg"
+  }
+}
+
+resource "aws_security_group" "web_sg" {
+  vpc_id = aws_vpc.main.id
+
+  ingress {
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    security_groups = [aws_security_group.lb_sg.id]
+  }
+
+  ingress {
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = {
+    Name = "web-sg"
+  }
+}
+
+# Output the DNS name of the Load Balancer
+output "load_balancer_dns_name" {
+  description = "The DNS name of the load balancer"
+  value       = aws_lb.web.dns_name
 }
