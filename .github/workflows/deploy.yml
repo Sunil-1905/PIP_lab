@@ -27,8 +27,8 @@ jobs:
     - name: Install Nginx
       run: |
         ssh -o StrictHostKeyChecking=no -i ${{ secrets.EC2_SSH_PRIVATE_KEY }} ec2-user@${{ steps.terraform.outputs.instance_ip }} << EOF
-        sudo yum update -y
-        sudo amazon-linux-extras install nginx1 -y
+        sudo apt update -y
+        sudo apt install nginx1 -y
         sudo systemctl start nginx
         sudo systemctl enable nginx
         EOF
