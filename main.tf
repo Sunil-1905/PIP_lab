@@ -24,7 +24,7 @@ resource "aws_instance" "node_app" {
   }
   #user_data = "IyEvYmluL2Jhc2gKc3VkbyBhcHQgdXBkYXRlIC15CnN1ZG8gYXB0IGluc3RhbGwgbmdpbnggLXkKc3VkbyBzeXN0ZW1jdGwgc3RhcnQgbmdpbngKc3VkbyBzeXN0ZW1jdGwgZW5hYmxlIG5naW54"
 
-    key_name = "Web1-Key_pair" # Replace with your key pair name
+    key_name = "test" # Replace with your key pair name
 }
 
 /*resource "aws_security_group" "node_app_sg" {
