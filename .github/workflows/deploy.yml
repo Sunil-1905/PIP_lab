@@ -54,6 +54,7 @@ jobs:
       run: |
         instance_ip=$(terraform output -raw instance_public_ip)
         ssh -o StrictHostKeyChecking=no -i ${{ secrets.EC2_SSH_KEY }} ubuntu@$instance_ip << EOF
+        #!/bin/bash
         sudo apt update -y
         sudo apt install nginx -y
         sudo systemctl start nginx
