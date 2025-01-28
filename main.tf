@@ -124,15 +124,13 @@ resource "aws_launch_template" "web" {
   instance_type = var.instance_type
   key_name      = var.key_name
 
-  user_data = <<-EOF
-    IyEvYmluL2Jhc2gKc3VkbyBhcHQgdXBkYXRlCnN1ZG8gYXB0IGluc3RhbGwgLXkgYXB0LXRyYW5zcG9ydC1odHRwcyBjYS1jZXJ0aWZpY2F0ZXMgY3VybCBzb2Z0d2FyZS1wcm9wZXJ0aWVzLWNvbW1vbgpjdXJsIC1mc1NMIGh0dHBzOi8vZG93bmxvYWQuZG9ja2VyLmNvbS9saW51eC91YnVudHUvZ3BnIHwgc3VkbyBhcHQt
-    a2V5IGFkZApzdWRvIGFkZC1hcHQtcmVwb3NpdG9yeSAteSAiZGViIFthcmNoPWFtZDg2XSBodHRwczovL2Rvd25sb2FkLmRvY2tlci5jb20vbGludXgvdWJ1bnR1ICQobHNiX3JlbGVhc2UgLWNzKSBzdGFibGUiCnN1ZG8gYXB0IHVwZGF0ZQpzdWRvIGFwdCBpbnN0YWxsIC15IGRvY2tlci1jZQpzdWRvIGRvY2tlciBsb2dpbiAtdSBzdW5pbDE5MDVAZ21haWwuY29tIC1wIFNrbWlzaHJhQDEKc3VkbyBkb2NrZXIgcHVsbCBweXRob246My44LXNsaW0Kc3VkbyBkb2NrZXIgcnVuIC1kIC0tbmFtZSBwaXAtcHl0aG9uIC1wIDgwOjgwIHB5dGhv
-    bjozLjgtc2xpbSBzaCAtYyAicHl0aG9uIC1tIGh0dHAuc2VydmVyIDgwIgo=
+  /*user_data = <<-EOF
+   copy your base64 codes here
   EOF
   network_interfaces {
     associate_public_ip_address = true
     security_groups             = [aws_security_group.web_sg.id]
-  }
+  }*/
 
   tags = {
     Name = "Web-CI-CD"
